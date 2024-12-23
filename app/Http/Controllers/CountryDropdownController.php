@@ -33,6 +33,18 @@ class CountryDropdownController extends Controller
     {
         $cities = \DB::table('cities')
             ->where('state_id', $request->state_id)
+            ->orderBy('name')
+            ->get();
+        
+        if (count($cities) > 0) {
+            return response()->json($cities);
+        }
+    }
+
+    public function policestation(Request $request)
+    {
+        $cities = \DB::table('cities')
+            ->where('state_id', $request->state_id)
             -> orderBy('name')
             ->get();
         

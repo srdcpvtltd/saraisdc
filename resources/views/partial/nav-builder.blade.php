@@ -84,6 +84,11 @@ $checkIsHotelCreated = DB::table('hotel_profiles')->where('user_id', Auth::id())
                     <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Cities') }}
                 </a>
             </li>
+            <li class="c-sidebar-nav-item">
+                <a href="{{url('/policestation')}}" class="c-sidebar-nav-link" >
+                    <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Police Station') }}
+                </a>
+            </li>
         @endrole
         @role('viewer')
             <li class="c-sidebar-nav-item">

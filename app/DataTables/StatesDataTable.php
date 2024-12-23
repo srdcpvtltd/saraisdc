@@ -56,7 +56,7 @@ class StatesDataTable extends DataTable
         return [
 
             Column::make('id'),
-            Column::make('country_id')->title('Cuntry'),
+            Column::make('country_id')->title('Country'),
             Column::make('name')->title('State'),
             Column::computed('action')
                 ->exportable(false)

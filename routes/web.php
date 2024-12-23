@@ -20,6 +20,7 @@ use App\Http\Controllers\CountryController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\CriminalsController;
+use App\Http\Controllers\PoliceController;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -35,6 +36,7 @@ use Illuminate\Support\Facades\Artisan;
 Route::get('dropdown', [CountryDropdownController::class, 'view'])->name('dropdownView')->middleware(['auth','XSS','2fa',]);
 Route::get('get-states', [CountryDropdownController::class, 'getStates'])->name('getStates')->middleware(['auth','XSS','2fa',]);
 Route::get('get-cities', [CountryDropdownController::class, 'getCities'])->name('getCities')->middleware(['auth','XSS','2fa',]);
+Route::get('get-policestaition', [CountryDropdownController::class, 'policestation'])->name('policestation')->middleware(['auth','XSS','2fa',]);
 Route::get('get-guest-details/', [GuestController::class, 'getGuestDetail'])->name('getGuestDetail')->middleware(['auth','XSS','2fa',]);
 
 
@@ -115,6 +117,7 @@ Route::group(['middleware' => ['auth','XSS']], function ()
     Route::resource('states',StateController::class);
     Route::resource('cities',CityController::class);
     Route::resource('criminals',CriminalsController::class);
+    Route::resource('policestation',PoliceController::class);
 
 
 });
