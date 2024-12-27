@@ -93,7 +93,7 @@ class RegisterController extends Controller
             return $user;
         }
     }
-    
+
     public function register(Request $request)
     {
         $this->validator($request->all())->validate();
@@ -103,9 +103,12 @@ class RegisterController extends Controller
 
         $user->email_token = $email_token;
         $user->save();
-        dispatch(new SendVerificationEmail($user));
+        // dispatch(new SendVerificationEmail($user));
 
-        return view('verification');
+        // return view('verification');
+
+        return redirect('/login')->with('message', 'Registration successfull, Please login to proceed');
+
     }
     public function verify($token)
     {
