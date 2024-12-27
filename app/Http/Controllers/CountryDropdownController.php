@@ -18,7 +18,7 @@ class CountryDropdownController extends Controller
             ->where('country_id', $request->country_id)
             -> orderBy('name')
             ->get();
-        
+
         if (count($states) > 0) {
             return response()->json($states);
         }
@@ -35,21 +35,21 @@ class CountryDropdownController extends Controller
             ->where('state_id', $request->state_id)
             ->orderBy('name')
             ->get();
-        
+
         if (count($cities) > 0) {
             return response()->json($cities);
         }
     }
 
-    public function policestation(Request $request)
+    public function getPolicestation(Request $request)
     {
-        $cities = \DB::table('cities')
-            ->where('state_id', $request->state_id)
-            -> orderBy('name')
+        $policestation = \DB::table('police_stations')
+            ->where('city_id', $request->city_id)
+            ->orderBy('code')
             ->get();
-        
-        if (count($cities) > 0) {
-            return response()->json($cities);
+
+        if (count($policestation) > 0) {
+            return response()->json($policestation);
         }
     }
 }

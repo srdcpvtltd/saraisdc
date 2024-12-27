@@ -11,6 +11,9 @@
             @role('admin')
                 @include('dashboard.adminuserblocks')
             @endrole
+            @role('viewer')
+                @include('dashboard.viewerblocks')
+            @endrole
             @role('user')
                 @include('dashboard.userblocks')
             @endrole

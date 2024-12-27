@@ -1,21 +1,21 @@
 @php
-$users = \Auth::user();
-$currantLang = $users->currentLanguage();
-$logo = asset('uploads/logo/');
-$checkIsHotelCreated = DB::table('hotel_profiles')->where('user_id', Auth::id())->first();
+    $users = \Auth::user();
+    $currantLang = $users->currentLanguage();
+    $logo = asset('uploads/logo/');
+    $checkIsHotelCreated = DB::table('hotel_profiles')->where('user_id', Auth::id())->first();
 @endphp
 <div class="c-sidebar c-sidebar-dark c-sidebar-fixed c-sidebar-lg-show" id="sidebar">
     <div class="c-sidebar-brand d-lg-down-none">
         <img class="c-sidebar-brand-full"
             src="{{ $logo . (isset($company_logo) && !empty($company_logo) ? $company_logo : '/light_logo.png') }}"
-             height="46" class="navbar-brand-img">
+            height="46" class="navbar-brand-img">
         <img class="c-sidebar-brand-minimized"
             src="{{ $logo . (isset($company_logo) && !empty($company_logo) ? $company_logo : '/small_logo.png') }}"
-             height="46" class="navbar-brand-img">
+            height="46" class="navbar-brand-img">
     </div>
     <ul class="c-sidebar-nav ps ps--active-y">
         <li class="c-sidebar-nav-item"><a class="c-sidebar-nav-link c-active" href="{{ url('/dashboard') }}">
-            <i class="cil-speedometer c-sidebar-nav-icon"></i> {{ __('Dashboard') }}</a>
+                <i class="cil-speedometer c-sidebar-nav-icon"></i> {{ __('Dashboard') }}</a>
         </li>
         @can('manage-user')
             <li class="c-sidebar-nav-item">
@@ -26,13 +26,11 @@ $checkIsHotelCreated = DB::table('hotel_profiles')->where('user_id', Auth::id())
         @endcan
 
         @role('admin')
-
-
-        <li class="c-sidebar-nav-item">
-            <a class="c-sidebar-nav-link " href="{{ route('criminals.index') }}">
-                <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Criminals') }}
-            </a>
-        </li>
+            <li class="c-sidebar-nav-item">
+                <a class="c-sidebar-nav-link " href="{{ route('criminals.index') }}">
+                    <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Criminals') }}
+                </a>
+            </li>
 
             <li class="c-sidebar-nav-item">
                 <a class="c-sidebar-nav-link" href="{{ route('admin.report') }}">
@@ -65,45 +63,96 @@ $checkIsHotelCreated = DB::table('hotel_profiles')->where('user_id', Auth::id())
                 </a>
             </li>
             <li class="c-sidebar-nav-item">
-                <a href="{{url('/notificationsettings')}}" class="c-sidebar-nav-link" >
-                    <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Notification Settings') }}
+                <a href="{{ url('/notificationsettings') }}" class="c-sidebar-nav-link">
+                    <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Notification') }}
                 </a>
             </li>
             <li class="c-sidebar-nav-item">
-                <a href="{{url('/countries')}}" class="c-sidebar-nav-link" >
+                <a href="{{ url('/countries') }}" class="c-sidebar-nav-link">
                     <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Countries') }}
                 </a>
             </li>
             <li class="c-sidebar-nav-item">
-                <a href="{{url('/states')}}" class="c-sidebar-nav-link" >
+                <a href="{{ url('/states') }}" class="c-sidebar-nav-link">
                     <i class="cil-user c-sidebar-nav-icon"></i>{{ __('States') }}
                 </a>
             </li>
             <li class="c-sidebar-nav-item">
-                <a href="{{url('/cities')}}" class="c-sidebar-nav-link" >
+                <a href="{{ url('/cities') }}" class="c-sidebar-nav-link">
                     <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Cities') }}
                 </a>
             </li>
             <li class="c-sidebar-nav-item">
-                <a href="{{url('/policestation')}}" class="c-sidebar-nav-link" >
+                <a href="{{ url('/policestation') }}" class="c-sidebar-nav-link">
                     <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Police Station') }}
                 </a>
             </li>
         @endrole
         @role('viewer')
-            <li class="c-sidebar-nav-item">
-                <a class="c-sidebar-nav-link" href="{{ route('admin.report') }}">
-                    <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Report') }}
-                </a>
-            </li>
-            <li class="c-sidebar-nav-item">
+            @can('manage-report')
+                <li class="c-sidebar-nav-item">
+                    <a class="c-sidebar-nav-link" href="{{ route('admin.report') }}">
+                        <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Report') }}
+                    </a>
+                </li>
+            @endcan
+            {{-- <li class="c-sidebar-nav-item">
                 <a class="c-sidebar-nav-link" href="{{ route('viewer_report.report') }}">
                     <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Hotel Report') }}
                 </a>
-            </li>
+            </li> --}}
+            @can('manage-criminals')
+                <li class="c-sidebar-nav-item">
+                    <a class="c-sidebar-nav-link " href="{{ route('criminals.index') }}">
+                        <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Criminals') }}
+                    </a>
+                </li>
+            @endcan
+            @can('manage-irregular_check_ins')
+                <li class="c-sidebar-nav-item">
+                    <a class="c-sidebar-nav-link" href="{{ route('admin.irregular_checkin') }}">
+                        <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Irregular Check Ins') }}
+                    </a>
+                </li>
+            @endcan
+            @can('manage-suspicious_check_ins')
+                <li class="c-sidebar-nav-item">
+                    <a class="c-sidebar-nav-link" href="{{ route('admin.suspicious_checkins') }}">
+                        <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Suspicicous Check Ins ') }}
+                    </a>
+                </li>
+            @endcan
+            @can('manage-messages')
+                <li class="c-sidebar-nav-item">
+                    <a class="c-sidebar-nav-link" href="{{ route('messages') }}">
+                        <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Messages ') }}
+                    </a>
+                </li>
+            @endcan
+            @can('manage-queries')
+                <li class="c-sidebar-nav-item">
+                    <a class="c-sidebar-nav-link" href="{{ route('admin.queries') }}">
+                        <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Queries ') }}
+                    </a>
+                </li>
+            @endcan
+            @can('manage-hotel_report')
+                <li class="c-sidebar-nav-item">
+                    <a class="c-sidebar-nav-link" href="{{ route('hotel_report.report') }}">
+                        <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Hotel Report') }}
+                    </a>
+                </li>
+            @endcan
+            @can('manage-notification')
+                <li class="c-sidebar-nav-item">
+                    <a href="{{ url('/notificationsettings') }}" class="c-sidebar-nav-link">
+                        <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Notification') }}
+                    </a>
+                </li>
+            @endcan
         @endrole
         @role('user')
-            @if($checkIsHotelCreated && ($checkIsHotelCreated->city != NULL || $checkIsHotelCreated->police_station != NULL))
+            @if ($checkIsHotelCreated && ($checkIsHotelCreated->city != null || $checkIsHotelCreated->police_station != null))
                 <li class="c-sidebar-nav-item">
                     <a class="c-sidebar-nav-link" href="{{ route('guest.create') }}">
                         <i class="cil-user c-sidebar-nav-icon"></i>{{ __('Guest Check In') }}
@@ -131,10 +180,10 @@ $checkIsHotelCreated = DB::table('hotel_profiles')->where('user_id', Auth::id())
                 </li>
             @endif
         @endrole
-                @role('user')
+        @role('user')
             <li class="c-sidebar-nav-item">
-                @if($checkIsHotelCreated)
-                    <a class="c-sidebar-nav-link" href="{{ asset(url('edit-hotel/'.$checkIsHotelCreated->id)) }}">
+                @if ($checkIsHotelCreated)
+                    <a class="c-sidebar-nav-link" href="{{ asset(url('edit-hotel/' . $checkIsHotelCreated->id)) }}">
                         <i class="cil-building c-sidebar-nav-icon"></i>{{ __('Edit Hotel') }}
                     </a>
                 @else
@@ -146,5 +195,6 @@ $checkIsHotelCreated = DB::table('hotel_profiles')->where('user_id', Auth::id())
         @endrole
         @include('layouts.menu')
     </ul>
-    <button class="c-sidebar-minimizer c-class-toggler" type="button" data-target="_parent" data-class="c-sidebar-minimized"></button>
+    <button class="c-sidebar-minimizer c-class-toggler" type="button" data-target="_parent"
+        data-class="c-sidebar-minimized"></button>
 </div>

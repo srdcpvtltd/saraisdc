@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\DataTables\PoliceStationDataTable;
 use App\Models\Country;
 use App\Models\State;
@@ -28,7 +29,7 @@ class PoliceController extends Controller
     public function create()
     {
         $countries = Country::get();
-        
+
         return view('police_station.create', compact('countries'));
     }
 
@@ -41,17 +42,17 @@ class PoliceController extends Controller
     public function store(Request $request)
     {
         // dd($request->all());
-        $message='';
+        $message = '';
         try {
             $policestation = new PoliceStation();
             $policestation->code = $request->name;
             $policestation->city_id = $request->city_id;
             $policestation->save();
 
-            $message='Police station saved successfully';
+            $message = 'Police station saved successfully';
         } catch (\Exception $exception) {
             dd($exception);
-            $message='Error has exit';
+            $message = 'Error has exit';
         }
         return redirect()->route('policestation.index')
             ->with('message', __($message));
@@ -84,7 +85,7 @@ class PoliceController extends Controller
         $countries = Country::get();
         $states = State::get();
 
-        return view('police_station.edit')->with(compact('city','citty','states','countries', 'policestation', 'selected_country_id', 'selected_state_id'));
+        return view('police_station.edit')->with(compact('city', 'citty', 'states', 'countries', 'policestation', 'selected_country_id', 'selected_state_id'));
     }
 
     /**
@@ -96,16 +97,20 @@ class PoliceController extends Controller
      */
     public function update(Request $request, $id)
     {
-        try {
-            
-            $this->cityService->update($request, $city);
-
-            $message='City Updated successfully';
-        } catch (\Exception $exception) {
-            $message='Error has Update';
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'city_id' => 'required|string|max:255',
+        ]);
+        $update = PoliceStation::find($id);
+        if (!$update) {
+            return redirect()->route('policestation.index')
+                ->with('message', __('Police Station not found.'));
         }
+        $update->code = $request->name;
+        $update->city_id = $request->city_id;
+        $update->save();
         return redirect()->route('policestation.index')
-            ->with('message', __($message));
+            ->with('message', __('Police Station updated successfully.'));
     }
 
     /**
@@ -116,6 +121,21 @@ class PoliceController extends Controller
      */
     public function destroy($id)
     {
-        //
+        try {
+            $policestation = PoliceStation::find($id);
+            if (!$policestation) {
+                return redirect()->route('policestation.index')
+                    ->with('message', __('Police Station not found.'));
+            }
+            $policestation->delete();
+
+            return redirect()->route('policestation.index')
+                ->with('message', __('Police Station deleted successfully.'));
+        } catch (\Exception $exception) {
+            \Log::error($exception->getMessage());
+
+            return redirect()->route('policestation.index')
+                ->with('message', __('An error occurred while deleting the Police Station.'));
+        }
     }
 }

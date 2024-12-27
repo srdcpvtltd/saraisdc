@@ -8,7 +8,7 @@
     {{ __('Show Permissions') }}
 @endsection
 @section('content')
-    <div class="col-md-6 m-auto">
+    <div class="col-md-8 m-auto">
         <div class="card">
             <div class="card-header"><strong>{{ __('Add/Edit Permissions to ') }} {{ $role->name }} {{ __(' Role') }}
                 </strong> </div>

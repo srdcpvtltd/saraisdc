@@ -17,8 +17,8 @@
             <div class="card-header">{{ __('Create New Police Station') }} </div>
             <div class="card-body">
                 <div class="form-group">
-                    {{ Form::label('name', __('Name')) }}
-                    {!! Form::text('name', null, ['placeholder' => __('Name'),  'class' => 'form-control']) !!}
+                    {{ Form::label('name', __('Police Station')) }}
+                    {!! Form::text('name', null, ['placeholder' => __('Enter Police Station'),  'class' => 'form-control']) !!}
                 </div>
                 <div class="form-group">
                     <label>Country</label>

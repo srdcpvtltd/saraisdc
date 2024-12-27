@@ -20,9 +20,11 @@ class CriminalsController extends Controller
      */
     public function index(CriminalsDataTable $table)
     {
-
-        return $table->render('criminals.index');
-
+        if (\Auth::user()->can('manage-criminals')) {
+            return $table->render('criminals.index');
+        } else {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
     }
 
     /**
@@ -32,7 +34,11 @@ class CriminalsController extends Controller
      */
     public function create()
     {
-        return view('criminals.create');
+        if (\Auth::user()->can('create-criminals')) {
+            return view('criminals.create');
+        } else {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
     }
 
     /**
@@ -43,28 +49,29 @@ class CriminalsController extends Controller
      */
     public function store(CreateCriminalRqeuest $request)
     {
+        if (\Auth::user()->can('create-criminals')) {
+            try {
+                $data = $request->all();
+                //photo
+                if ($request->file('photo')) {
+                    $extension = $request->file('photo')->getClientOriginalExtension();
+                    $documentName = time() . '.' . $extension;
 
-        try{
-            $data = $request->all();
-            //photo
-            if ($request->file('photo')) {
-                $extension = $request->file('photo')->getClientOriginalExtension();
-                $documentName = time().'.'.$extension;
+                    Storage::disk('public')->put('criminals/' . $documentName, file_get_contents($request->photo));
+                    $data['photo'] = $documentName;
+                }
 
-                Storage::disk('public')->put( 'criminals/'.$documentName, file_get_contents($request->photo));
-                $data['photo'] = $documentName;
-
+                //save
+                $criminal   = Criminal::create($data);
+            } catch (\Exception $exception) {
+                return redirect()->back()
+                    ->with('message', __('Error while saving data!'));
             }
-
-            //save
-            $criminal   = Criminal::create($data);
-
-        } catch (\Exception $exception) {
-            return redirect()->back()
-            ->with('message', __('Error while saving data!'));
+            return redirect()->route('criminals.index')
+                ->with('message', __('Criminal created successfully!'));
+        } else {
+            return redirect()->back()->with('error', 'Permission denied.');
         }
-        return redirect()->route('criminals.index')
-            ->with('message', __('Criminal created successfully!'));
     }
 
     public function show(Criminal $criminal)
@@ -74,50 +81,59 @@ class CriminalsController extends Controller
 
     public function edit(Criminal $criminal)
     {
-
-        return view('criminals.edit')->with(compact('criminal'));
+        if (\Auth::user()->can('edit-criminals')) {
+            return view('criminals.edit')->with(compact('criminal'));
+        } else {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
     }
 
     public function update(UpdateCriminalRequest $request, Criminal $criminal)
     {
-        try {
+        if (\Auth::user()->can('edit-criminals')) {
+            try {
 
-            $data = $request->all();
+                $data = $request->all();
 
-            //photo
-            if ($request->file('photo')) {
-                $extension = $request->file('photo')->getClientOriginalExtension();
-                $documentName = time().'.'.$extension;
-                Storage::disk('public')->put( 'criminals/'.$documentName, file_get_contents($request->photo));
-                $data['photo'] = $documentName;
-            }else{
-                unset($data['photo']);
+                //photo
+                if ($request->file('photo')) {
+                    $extension = $request->file('photo')->getClientOriginalExtension();
+                    $documentName = time() . '.' . $extension;
+                    Storage::disk('public')->put('criminals/' . $documentName, file_get_contents($request->photo));
+                    $data['photo'] = $documentName;
+                } else {
+                    unset($data['photo']);
+                }
+
+                //save
+                $criminal->update($data);
+            } catch (\Exception $exception) {
+                return redirect()->back()
+                    ->with('message', __('Error while saving data!'));
             }
-
-            //save
-            $criminal->update($data);
-
-        } catch (\Exception $exception) {
-            return redirect()->back()
-            ->with('message', __('Error while saving data!'));
+            return redirect()->route('criminals.index')
+                ->with('message', __('Data updated successfully!'));
+        } else {
+            return redirect()->back()->with('error', 'Permission denied.');
         }
-        return redirect()->route('criminals.index')
-            ->with('message', __('Data updated successfully!'));
     }
 
     public function destroy(Criminal $criminal)
     {
-        try {
+        if (\Auth::user()->can('delete-criminals')) {
+            try {
 
-            CriminalBookingMatch::where('criminal_id',$criminal->id)->delete();
+                CriminalBookingMatch::where('criminal_id', $criminal->id)->delete();
 
-            $criminal->delete();
-
-        } catch (\Exception $exception) {
+                $criminal->delete();
+            } catch (\Exception $exception) {
+                return redirect()->route('criminals.index')
+                    ->with('message', __('Error while deleting data!'));
+            }
             return redirect()->route('criminals.index')
-            ->with('message', __('Error while deleting data!'));
+                ->with('message', __('Sucessfully Deleted!'));
+        } else {
+            return redirect()->back()->with('error', 'Permission denied.');
         }
-        return redirect()->route('criminals.index')
-            ->with('message', __('Sucessfully Deleted!'));
     }
 }

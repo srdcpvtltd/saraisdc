@@ -11,7 +11,7 @@
 @section('content')
 
     {!! Form::open(['route' => 'modules.store', 'method' => 'POST']) !!}
-    <div class="col-md-4 m-auto">
+    <div class="col-md-6 m-auto">
         <div class="card">
             <div class="card-header">{{ __('Create New Module') }} </div>
             <div class="card-body">

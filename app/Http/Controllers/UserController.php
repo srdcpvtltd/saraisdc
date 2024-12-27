@@ -6,6 +6,10 @@ use App\DataTables\UsersDataTable;
 use App\Facades\UtilityFacades;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\City;
+use App\Models\Country;
+use App\Models\PoliceStation;
+use App\Models\State;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
@@ -23,49 +27,85 @@ class UserController extends Controller
     {
         if (\Auth::user()->can('manage-user')) {
 
-        return $table->render('users.index');
-    } else {
-        return redirect()->back()->with('error', 'Permission denied.');
-    }
+            return $table->render('users.index');
+        } else {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
     }
 
 
     public function create()
     {
         if (\Auth::user()->can('create-user')) {
-
-        $roles = Role::pluck('name', 'name')->all();
-        return view('users.create', compact('roles'));
-    } else {
-        return redirect()->back()->with('error', 'Permission denied.');
-    }
+            $countries = Country::get();
+            $roles = Role::pluck('name', 'name')->all();
+            return view('users.create', compact('roles', 'countries'));
+        } else {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
     }
 
 
     public function store(Request $request)
+    // {
+    //     $this->validate($request, [
+    //         'name' => 'required',
+    //         'email' => 'required|email|unique:users,email',
+    //         'password' => 'required|same:confirm-password',
+    //         'roles' => 'required'
+    //     ]);
+    //     $role_r = Role::findByName($request->roles);
+
+    //     $user   = User::create(
+    //         [
+    //             'name' => $request['name'],
+    //             'email' => $request['email'],
+    //             'password' => Hash::make($request['password']),
+    //             'confirm_password' => 'required|same:password',
+    //             'type' => $role_r->name,
+    //             'created_by' => Auth::user()->id,
+    //         ]
+    //     );
+
+
+    //     $user->assignRole($role_r);
+
+    //     return redirect()->route('users.index')
+    //         ->with('message', __('User created successfully'));
+    // }
     {
-        $this->validate($request, [
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|same:confirm-password',
-            'roles' => 'required'
+        // dd($request->all());
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email|max:255',
+            'password' => 'required|min:8|same:confirm-password',
+            'roles' => 'required',
+            'country_id' => 'required|integer',
+            'state_id' => 'required|integer',
+            'city_id' => 'required|integer',
+            'police_station_id' => 'required|integer',
         ]);
-        $role_r = Role::findByName($request->roles);
 
-        $user   = User::create(
-            [
-                'name' => $request['name'],
-                'email' => $request['email'],
-                'password' => Hash::make($request['password']),
-                'confirm_password' => 'required|same:password',
-                'type' => $role_r->name,
-                'created_by' => Auth::user()->id,
-            ]
-        );
+        // Retrieve the role
+        $role = Role::findByName($request->roles);
 
+        // Create the user
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'type' => $role->name,
+            'country' => $request->country_id,
+            'state' => $request->state_id,
+            'city' => $request->city_id,
+            'police_station' => $request->police_station_id,
+            'created_by' => Auth::id(),
+        ]);
 
-        $user->assignRole($role_r);
+        // Assign the role to the user
+        $user->assignRole($role);
 
+        // Redirect back with success message
         return redirect()->route('users.index')
             ->with('message', __('User created successfully'));
     }
@@ -75,12 +115,11 @@ class UserController extends Controller
     {
         if (\Auth::user()->can('show-user')) {
 
-        $user = User::find($id);
-        return view('users.show', compact('user'));
-    } else {
-        return redirect()->back()->with('error', 'Permission denied.');
-    }
-
+            $user = User::find($id);
+            return view('users.show', compact('user'));
+        } else {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
     }
 
 
@@ -88,14 +127,18 @@ class UserController extends Controller
     {
         if (\Auth::user()->can('edit-user')) {
 
-        $user = User::find($id);
-        $roles = Role::pluck('name', 'name')->all();
-        $userRole = $user->roles->pluck('name', 'name')->all();
+            $user = User::find($id);
+            $roles = Role::pluck('name', 'name')->all();
+            $userRole = $user->roles->pluck('name', 'name')->all();
+            $countries = Country::all();
+            $states = State::all();
+            $city = City::all();
+            $policestation = PoliceStation::all();
 
-        return view('users.edit', compact('user', 'roles', 'userRole'));
-    } else {
-        return redirect()->back()->with('error', 'Permission denied.');
-    }
+            return view('users.edit', compact('user', 'roles', 'userRole', 'countries', 'states', 'city', 'policestation'));
+        } else {
+            return redirect()->back()->with('error', 'Permission denied.');
+        }
     }
 
 
@@ -107,16 +150,22 @@ class UserController extends Controller
 
             'roles' => 'required'
         ]);
-        $input = $request->except('password','confirm_password');
+        $input = $request->except('password', 'confirm_password');
 
-        $user = User::find($id);
-        $user->update($input);
+        $user = User::findOrFail($id);
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'country' => $request->country_id,
+            'state' => $request->state_id,
+            'city' => $request->city_id,
+            'police_station' => $request->police_station_id,
+        ]);
         DB::table('model_has_roles')->where('model_id', $id)->delete();
 
         $user->assignRole($request->input('roles'));
-        if($request->password)
-        {
-            //Change Password
+        if ($request->password) {
             $user->password = bcrypt($request->get('password'));
             $user->save();
         }
@@ -130,16 +179,14 @@ class UserController extends Controller
         if (\Auth::user()->can('delete-user')) {
 
 
-        if($id==1)
-        {
+            if ($id == 1) {
 
-            return redirect()->back()->with('error', 'Permission denied.');
-        }else{
+                return redirect()->back()->with('error', 'Permission denied.');
+            } else {
 
-            DB::table("users")->delete($id);
-            return redirect()->route('users.index')->with('message', __('User delete successfully.'));
-
-        }
+                DB::table("users")->delete($id);
+                return redirect()->route('users.index')->with('message', __('User delete successfully.'));
+            }
         }
     }
 
@@ -156,7 +203,7 @@ class UserController extends Controller
                 $google2fa_url = "";
                 $secret_key = "";
 
-                if($user->loginSecurity()->exists()){
+                if ($user->loginSecurity()->exists()) {
                     $google2fa = (new \PragmaRX\Google2FAQRCode\Google2FA());
                     $google2fa_url = $google2fa->getQRCodeInline(
                         config('app.name'),
@@ -174,7 +221,7 @@ class UserController extends Controller
             }
             $userDetail = Auth::user();
 
-            return view('users.profile', compact('data','userDetail'));
+            return view('users.profile', compact('data', 'userDetail'));
         } else {
             $userDetail = Auth::user();
 
