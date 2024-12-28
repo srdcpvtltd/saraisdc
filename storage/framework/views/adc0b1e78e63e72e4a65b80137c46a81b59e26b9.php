@@ -1,0 +1,2 @@
+<h1>Click the Link To Verify Your Email</h1>
+Click the following link to verify your email <?php echo e(url('/verifyemail/' . $email_token)); ?><?php /**PATH C:\xampp\htdocs\sarai_new\resources\views/email/verify_account.blade.php ENDPATH**/ ?>
